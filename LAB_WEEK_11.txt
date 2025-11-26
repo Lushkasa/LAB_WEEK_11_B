@@ -1,0 +1,36 @@
+1. private fun insertToStore(
+    fileInfo: FileInfo, contentUri: Uri,
+    contentValues: ContentValues
+) {
+    executor.execute {
+        val insertedUri = contentResolver.insert(
+            contentUri,
+            contentValues
+        )
+        insertedUri?.let {
+            val inputStream =
+                contentResolver.openInputStream(fileInfo.uri)
+            val outputStream =
+                contentResolver.openOutputStream(insertedUri)
+            IOUtils.copy(inputStream, outputStream)
+        }
+    }
+}
+
+2. - uri = ini mengarah ke lokasi temporary file yang berada di dalam private storage device ("Android/data/com.example.lab_week_11_b/files/Pictures"). path untuk kamera menulis foto sebelum dicopy ke mediastore
+
+- relativePath = representasi folder di dalam mediastore, tempat foto-foto disimpan.
+
+3. a. tombol ditekan
+mainActivity akan memanggil openImageCapture()
+b. generate uri
+membuat temporary file dengan FileHelper dan membuat content uri dengan File Provider
+c. kamera dibuka
+takePictureLauncher.launch(it.uri) memulai kamera dan memberi tahu android untuk menyimpan gambar dalam uri sementara 
+d. pengguna mengambil gambar
+kamera menulis gambar yang diambil yang direpresentasikan oleh uri
+e. setelah berhasil, gambar dimasukkan ke dalam mediastore
+f. copy ke mediastore
+gambar asli dari uri akan dibaca dan dicopy ke mediastore uri
+g. selesai/berhasil
+sekarang gambar bisa diakses/dilihat melalui aplikasi galeri bawaan sistem (mediastore), sedangkan file/gambar original tetap berada di folder private aplikasi
